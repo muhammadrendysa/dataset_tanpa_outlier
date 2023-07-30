@@ -1,0 +1,385 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+## Identifikasi Outlier pada Dataset Prediksi Persetujuan Pinjaman
+
+![](dmitry-demidko-eBWzFKahEaU-unsplash.jpg)
+
+### Tentang Dataset
+
+[**Dataset**](https://www.kaggle.com/datasets/architsharma01/loan-approval-prediction-dataset) persetujuan pinjaman adalah kumpulan catatan keuangan dan informasi terkait yang digunakan untuk menentukan kelayakan individu atau organisasi untuk mendapatkan pinjaman dari lembaga pemberi pinjaman. Dataset ini mencakup berbagai faktor seperti skor cibil, pendapatan, status pekerjaan, jangka waktu pinjaman, jumlah pinjaman, nilai aset, dan status pinjaman. Dataset ini biasanya digunakan dalam pembelajaran mesin dan analisis data untuk mengembangkan model dan algoritma yang memprediksi kemungkinan persetujuan pinjaman berdasarkan fitur yang diberikan.
+
+Variabel list:
+> 
+- Loan_id : id pinjaman
+- no_of_dependents : jumlah tanggungan anggota keluarga 
+- education : status pendidikan perguruan tinggi peminjam
+- self_employed : apakah pelamar memiliki bisnis mandiri atau tidak
+- income_annum : pendapatan tahunan peminjam
+- loan_amount : jumlah pinjaman yang diajukan peminjam
+- loan_term : jangka waktu atau durasi pinjaman yang diajukan peminjam
+- cibil_score : informasi skor kredit peminjam
+- residential_assets_value : informasi tentang nilai aset tempat tinggal peminjam
+- commercial_assets_value : informasi tentang nilai aset comersial baik bisnis dan lainnya dari peminjam
+- luxury_assets_value : informasi tentang nilai aset mewah(mobil, investasi, perhiasan, dll) dari peminjam
+- bank_assets_value : informasi tentang nilai aset bank(rekening tabungan, deposito, saham, obligasi, dll) dari peminjam
+- loan_status : informasi status peminjam, disetujui atau tidak
+>
+
+#### Import Dataset 
+
+```{r}
+data_loan <- read.csv("C:/Users/Repets/Downloads/archive (41)/loan_approval_dataset.csv", stringsAsFactors = TRUE)
+dim(data_loan)
+```
+
+```{r}
+library(tidyverse)
+```
+
+#### Identifikasi Outlier dengan histogram dan boxplot
+
+```{r}
+summary(data_loan)
+```
+
+```{r}
+str(data_loan)
+```
+
+```{r}
+data_loan %>%
+  count(no_of_dependents)
+```
+
+```{r}
+data_loan_copy <- data_loan
+
+data_loan_copy$no_of_dependents_factor <- factor(data_loan_copy$no_of_dependents, levels = c(0, 1, 2, 3, 4, 5), labels = c("0 tanggungan", "1 tanggungan", "2 tanggungan", "3 tanggungan", "4 tanggungan", "5 tanggungan"))
+
+str(data_loan_copy)
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = reorder(no_of_dependents_factor, income_annum, FUN = "median"), y = income_annum))+
+  geom_boxplot(mapping = aes(fill = no_of_dependents_factor), color = "black")
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = income_annum))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = "", y = income_annum))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = "", y = no_of_dependents))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = education, y = loan_amount))+
+  geom_boxplot(mapping = aes(fill = education))
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = loan_amount))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = "", y = loan_amount))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+data_loan_copy %>%
+  count(loan_term)
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = "", y = loan_term))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = cibil_score))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = "", y = cibil_score))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = residential_assets_value))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = "", y = residential_assets_value))+
+  geom_boxplot(fill = "aquamarine")
+```
+pada variable residential_assets_value terlihat adanya outlier di atas whisker, dimana niai tersebut lebih tinggi jika dibandingkan dengan nilai lainnya
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = commercial_assets_value))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = "", y = commercial_assets_value))+
+  geom_boxplot(fill = "aquamarine")
+```
+pada variable commercial_assets_value terlihat juga beberapa pencilan outlier
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = luxury_assets_value))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = "", y = luxury_assets_value))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = bank_asset_value))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = "", y = bank_asset_value))+
+  geom_boxplot(fill = "aquamarine")
+```
+pada variable bank_asset_value terlihat beberapa outlier dengan nilai yang sangat tinggi
+
+```{r}
+ggplot(data = data_loan_copy, mapping = aes(x = loan_status, y = luxury_assets_value))+
+  geom_boxplot(mapping = aes(fill = loan_status))
+```
+list variable yang terlihat memiliki outlier pada boxplot:
+- bank_asset_value
+- commercial_assets_value
+- residential_assets_value
+
+##### Residential assets value Outlier
+
+```{r}
+boxplot.stats(data_loan_copy$residential_assets_value)$out
+```
+
+```{r}
+out <- boxplot.stats(data_loan_copy$residential_assets_value)$out
+
+out_ind <- which(data_loan_copy$residential_assets_value %in% c(out))
+out_ind
+```
+terlihat beberapa peminjam dengan nomor loan_id 83 merupakan outlier
+
+```{r}
+filter(data_loan_copy, residential_assets_value %in% c(out)) %>% head()
+```
+
+terdapat `52` observasi residential assets value menurut boxplot.assets()
+
+##### Commercial assets value Outlier
+
+```{r}
+boxplot.stats(data_loan_copy$commercial_assets_value)$out
+```
+
+```{r}
+out1 <- boxplot.stats(data_loan_copy$commercial_assets_value)$out
+
+out_ind1 <- which(data_loan_copy$commercial_assets_value %in% c(out1))
+out_ind1
+```
+
+```{r}
+filter(data_loan_copy, commercial_assets_value %in% c(out1)) %>% head()
+```
+terdapat `37` observasi pada commercial assets value
+
+##### Bank asset value Outlier
+
+```{r}
+boxplot.stats(data_loan_copy$bank_asset_value)$out
+```
+
+```{r}
+out2 <- boxplot.stats(data_loan_copy$bank_asset_value)$out
+
+out_ind2 <- which(data_loan_copy$bank_asset_value %in% c(out2))
+out_ind2
+```
+
+```{r}
+filter(data_loan_copy, bank_asset_value %in% c(out2))
+```
+terdapat `5` observasi pada bank asset value
+
+#### Identifikasi Outlier dengan Persentil
+
+##### Residential assets value Outlier With persentil
+
+```{r}
+lower_bound0 <- quantile(data_loan_copy$residential_assets_value, 0.025)
+upper_bound0 <- quantile(data_loan_copy$residential_assets_value, 0.975)
+
+print(paste("lower : ", lower_bound0))
+print(paste("upper : ", upper_bound0))
+```
+
+```{r}
+outlier_ind0 <- filter(data_loan_copy, residential_assets_value < lower_bound0 | residential_assets_value > upper_bound0)
+outlier_ind0 %>% head()
+```
+berdasarkan data terdapat `178` observasi yang adalah outlier menurut outlier pada variable pengamatan residential assets value ini  lebih banyak jika dibandingkan pada `boxplot.stats()` sebelumnya
+
+##### Commercial assets value Outlier identification with persentil
+
+```{r}
+lower_bound1 <- quantile(data_loan_copy$commercial_assets_value, 0.05)
+upper_bound1 <- quantile(data_loan_copy$commercial_assets_value, 0.95)
+
+print(paste("lower : ", lower_bound1))
+print(paste("upper : ", upper_bound1))
+```
+
+```{r}
+outlier_ind1 <- filter(data_loan_copy, commercial_assets_value < lower_bound1 | commercial_assets_value > upper_bound1)
+outlier_ind1 %>% head()
+```
+terdapat `418` outlier pada variabel commercial assets value lebih banyak jumlahnya jika dibandingkan dengan menggunakan `boxplot.stats()`
+
+##### Bank asset value Outlier Identification with persentil
+
+```{r}
+lower_bound2 <- quantile(data_loan_copy$bank_asset_value, 0.01)
+upper_bound2 <- quantile(data_loan_copy$bank_asset_value, 0.99)
+
+print(paste("lower : ", lower_bound2))
+print(paste("upper : ", upper_bound2))
+```
+
+```{r}
+outlier_ind2 <- filter(data_loan_copy, bank_asset_value < lower_bound2 | bank_asset_value > upper_bound2)
+outlier_ind2 %>% head()
+```
+terdapat `80` observasi outlier pada data, lebih banyak jika dari sebelumnya yang hanya terdapat `5` outlier
+
+#### Identifikasi Outlier dengan hampel filter
+
+##### Residential assets value Outlier identification hampel filter
+
+```{r}
+lower_bound3 <- median(data_loan_copy$residential_assets_value) - 3 * mad(data_loan_copy$residential_assets_value, constant = 1)
+lower_bound3
+```
+
+```{r}
+upper_bound3 <- median(data_loan_copy$residential_assets_value) + 3 * mad(data_loan_copy$residential_assets_value, constant = 1)
+upper_bound3
+```
+menurut metode hampel filter data diatas dan dibawah lower bound, upper bound adalah outlier
+
+```{r}
+outlier_ind3 <- filter(data_loan_copy, residential_assets_value < lower_bound3 | residential_assets_value > upper_bound3)
+outlier_ind3 %>% head()
+```
+menurut hampel filter terdapat outlier upper bound sebanyak `384` baris lebih banyak jika dibandingkan dengan kedua metode sebelumnya 
+
+##### Commercial assets value Outlier identification hampel filter
+
+```{r}
+lower_bound4 <- median(data_loan_copy$commercial_assets_value) - 3 * mad(data_loan_copy$commercial_assets_value, constant = 1)
+lower_bound4
+```
+
+```{r}
+upper_bound4 <- median(data_loan_copy$commercial_assets_value) + 3 * mad(data_loan_copy$commercial_assets_value, constant = 1)
+upper_bound4
+```
+
+```{r}
+outlier_ind4 <- filter(data_loan_copy, commercial_assets_value < lower_bound4 | commercial_assets_value > upper_bound4)
+outlier_ind4 %>% head()
+```
+terdapat `374` observasi outlier pada variable commercial assets value dengan metode hampel filter
+
+##### Bank asset value Outlier identification hampel filter
+
+```{r}
+lower_bound5 <- median(data_loan_copy$bank_asset_value) - 3 * mad(data_loan_copy$bank_asset_value, constant = 1)
+lower_bound5
+```
+
+```{r}
+upper_bound5 <- median(data_loan_copy$bank_asset_value) + 3 * mad(data_loan_copy$bank_asset_value, constant = 1)
+upper_bound5
+```
+
+```{r}
+outlier_ind5 <- filter(data_loan_copy, bank_asset_value < lower_bound5 | bank_asset_value > upper_bound5)
+outlier_ind5 %>% head()
+```
+terdapat `133` baris outlier ketika menggunakan hampel filter 
+
+#### Menghapus Outlier
+
+```{r}
+loan_no_outlier <- data_loan
+dim(loan_no_outlier)
+```
+
+```{r}
+loan_no_outlier <- filter(loan_no_outlier, !(residential_assets_value < lower_bound3 | residential_assets_value > upper_bound3))
+
+dim(loan_no_outlier)
+```
+
+```{r}
+loan_no_outlier <- filter(loan_no_outlier, !(commercial_assets_value < lower_bound4 | commercial_assets_value > upper_bound4))
+
+dim(loan_no_outlier)
+```
+
+```{r}
+loan_no_outlier <- filter(loan_no_outlier, !(bank_asset_value < lower_bound5 | bank_asset_value > upper_bound5))
+dim(loan_no_outlier)
+```
+
+```{r}
+ggplot(data = loan_no_outlier, mapping = aes(x = "", y = residential_assets_value))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = loan_no_outlier, mapping = aes(x = "", y = commercial_assets_value))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = loan_no_outlier, mapping = aes(x = "", y = bank_asset_value))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+berikut [**dataset**](https://github.com/muhammadrendysa/dataset_tanpa_outlier/blob/main/loan_approval_noOutlier.xlsx) loan approval tanpa Outlier
+
+
+
+
+
+
+
+
+
+
+
