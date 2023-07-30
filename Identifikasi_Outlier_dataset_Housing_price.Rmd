@@ -1,0 +1,304 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+## Identifikasi Outlier Pada Dataset Housing Price
+
+### Tentang Dataset
+
+> [**Dataset**](https://www.kaggle.com/datasets/harishkumardatalab/housing-price-prediction)
+> ini menyediakan informasi lengkap untuk prediksi harga rumah, dengan
+> 13 nama kolom:
+>
+> - Price: Harga rumah.
+> - Area: Luas total rumah dalam meter persegi.
+> - Bedrooms: Jumlah kamar tidur di dalam rumah.
+> - Bathrooms: Jumlah kamar mandi di dalam rumah.
+> - Stories: Jumlah lantai di dalam rumah.
+> - Mainroad: Apakah rumah tersebut terhubung dengan jalan utama
+>   (Ya/Tidak).
+> - Guestroom: Apakah rumah tersebut memiliki ruang tamu (Ya/Tidak).
+> - Basement: Apakah rumah memiliki ruang bawah tanah (Ya/Tidak).
+> - Hot water heating: Apakah rumah memiliki sistem pemanas air panas
+>   (Ya/Tidak).
+> - Airconditioning: Apakah rumah memiliki sistem pendingin udara
+>   (Ya/Tidak).
+> - Parking: Jumlah tempat parkir yang tersedia di dalam rumah.
+> - Prefarea: Apakah rumah tersebut terletak di area yang disukai
+>   (Ya/Tidak).
+> - Furnishing status: Status perabotan rumah (Fully Furnished,
+>   Semi-Furnished, Unfurnished).
+
+### Import Dataset
+
+```{r}
+housing_data <- read.csv("C:/Users/Repets/Downloads/Housing.csv", stringsAsFactors = TRUE)
+dim(housing_data)
+```
+
+```{r}
+library(tidyverse)
+summary(housing_data)
+```
+
+```{r}
+str(housing_data)
+```
+
+```{r}
+housing_data_copy <- housing_data
+```
+
+#### Identification Outlier With Histogram And Boxplot
+
+```{r}
+housing_data_copy$bedrooms_factor <- factor(housing_data_copy$bedrooms, levels = c(1, 2, 3, 4, 5, 6), labels = c("kamar1", "kamar2", "kamar3", "kamar4", "kamar5", "kamar6"))
+
+housing_data_copy$bathrooms_factor <- factor(housing_data_copy$bathrooms, levels = c(1, 2, 3, 4), labels = c("kamar mandi1", "kamar mandi2", "kamar mandi3", "kamar mandi4"))
+
+housing_data_copy$stories_factor <- factor(housing_data_copy$stories, levels = c(1, 2, 3, 4), labels = c("satu lantai", "dua lantai", "tiga lantai", "empat lantai"))
+
+housing_data_copy$parking_factor <- factor(housing_data_copy$parking, levels = c(0, 1, 2, 3), labels = c("tanpa parkir" ,"satu parkir", "dua parkir", "tiga parkir"))
+```
+
+```{r}
+head(housing_data_copy)
+```
+```{r}
+ggplot(data = housing_data_copy, mapping = aes(x = "", y = price))+
+  geom_boxplot(fill = "maroon")
+```
+
+terdapat pencilan pada variabel price
+
+```{r}
+ggplot(data = housing_data_copy, mapping = aes(x = price))+
+  geom_histogram(fill = "maroon", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = housing_data_copy, mapping = aes(x = "", y = area))+
+  geom_boxplot(fill = "maroon")
+```
+
+terdapat pencilan pada variable area
+
+```{r}
+ggplot(data = housing_data_copy, mapping = aes(x = area))+
+  geom_histogram(fill = "maroon", color = "black", bins = 30)
+```
+
+variable selain area dan price lebih tepat jika disebut dengan variabel kategorikal/faktor, maupun ordinal, bukan variabel numerik dengan skala interval dan rasio yang dapat diukur secara kontinu, maka dari itu ada kemungkinan tidak adanya outlier pada variabel-variabel tersebut.
+
+```{r}
+boxplot.stats(housing_data_copy$price)$out
+```
+
+```{r}
+out <- boxplot.stats(housing_data_copy$price)$out
+
+outlier_ind <- filter(housing_data_copy, price %in% c(out))
+outlier_ind
+```
+terdapat `15` outlier pada variable price
+
+```{r}
+out1 <- boxplot.stats(housing_data_copy$area)$out
+
+outlier_ind1 <- filter(housing_data_copy, area %in% c(out1))
+outlier_ind1
+```
+terdapat `12` baris outlier pada variable area
+
+#### Identification Outlier with persentil
+
+```{r}
+lower_bound <- quantile(housing_data_copy$price, 0.01)
+upper_bound <- quantile(housing_data_copy$price, 0.99)
+
+print(paste("lower : ", lower_bound))
+print(paste("upper : ", upper_bound))
+```
+
+```{r}
+outlier_ind2 <- filter(housing_data_copy, price < lower_bound | price > upper_bound)
+outlier_ind2
+```
+terdapat `12` outlier ketika menggunakan metode persentil pada variable price
+
+```{r}
+lower_bound1 <- quantile(housing_data_copy$area, 0.01)
+upper_bound1 <- quantile(housing_data_copy$area, 0.99)
+
+print(paste("lower : ", lower_bound1))
+print(paste("upper : ", upper_bound1))
+```
+
+```{r}
+outlier_ind3 <- filter(housing_data_copy, area < lower_bound1 | area > upper_bound1)
+outlier_ind3
+```
+
+#### Identification outlier with hampel filter
+
+```{r}
+lower_bound2 <- median(housing_data_copy$price) - 3 * mad(housing_data_copy$price, constant = 1)
+upper_bound2 <- median(housing_data_copy$price) + 3 * mad(housing_data_copy$price, constant = 1)
+
+print(paste("lower : ", lower_bound2))
+print(paste("upper : ", upper_bound2))
+```
+
+```{r}
+outlier_ind4 <- filter(housing_data_copy, price < lower_bound2 | price > upper_bound2)
+outlier_ind4 %>% head()
+```
+terdapat `47` baris outlier pada variable price dengan metode hampel filter
+
+```{r}
+lower_bound3 <- median(housing_data_copy$area) - 3 * mad(housing_data_copy$area, constant = 1)
+upper_bound3 <- median(housing_data_copy$area) + 3 * mad(housing_data_copy$area, constant = 1)
+
+print(paste("lower : ", lower_bound3))
+print(paste("upper : ", upper_bound3))
+```
+
+```{r}
+outlier_ind5 <- filter(housing_data_copy, area < lower_bound3 | area > upper_bound3)
+outlier_ind5 %>% head()
+```
+terdapat `34` baris outlier pada variable area ketika menggunakan hampel filter
+
+### Menghapus Outlier
+
+#### Menghapus Outlier dari Metode boxplot.stats()
+
+```{r}
+housing_data1 <- housing_data
+dim(housing_data1)
+```
+
+```{r}
+housing_data1 <- filter(housing_data1, !(price %in% c(out)))
+dim(housing_data1)
+```
+
+```{r}
+housing_data1 <- filter(housing_data1, !(area %in% c(out1)))
+dim(housing_data1)
+```
+
+```{r}
+ggplot(data = housing_data1, mapping = aes(x = "", y = price))+
+  geom_boxplot(fill = "maroon")
+```
+ketika menggunakan dataset tanpa outlier hasil fungsi `boxplot.stats()` masih terdapat outlier
+
+```{r}
+ggplot(data = housing_data1, mapping = aes(x = price))+
+  geom_histogram(fill = "maroon", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = housing_data1, mapping = aes(x = "", y = area))+
+  geom_boxplot(fill = "maroon")
+```
+pada variable area masih terdapat outlier
+
+```{r}
+ggplot(data = housing_data1, mapping = aes(x = area))+
+  geom_histogram(fill = "maroon", color = "black", bins = 30)
+```
+
+#### Menghapus Outlier dari Metode Persentil
+
+```{r}
+housing_data2 <- housing_data
+dim(housing_data2)
+```
+
+```{r}
+housing_data2 <- filter(housing_data2, !(price < lower_bound | price > upper_bound))
+dim(housing_data2)
+```
+
+```{r}
+housing_data2 <-filter(housing_data2, !(area < lower_bound1 | area > upper_bound1))
+dim(housing_data2)
+```
+```{r}
+ggplot(data = housing_data2, mapping = aes(x = "", y = price))+
+  geom_boxplot(fill = "maroon")
+```
+
+```{r}
+ggplot(data = housing_data2, mapping = aes(x = price))+
+  geom_histogram(fill = "maroon", color = "black", bins = 30)
+```
+
+
+```{r}
+ggplot(data = housing_data2, mapping = aes(x = "", y = area))+
+  geom_boxplot(fill = "maroon")
+```
+
+```{r}
+ggplot(data = housing_data2, mapping = aes(x = area))+
+  geom_histogram(fill = "maroon", color = "black", bins = 30)
+```
+masih terdapat outlier pada kedua variable pengamatan ketika menggunakan persentil
+
+#### Menghapus Outlier dari Metode hampel filter
+
+```{r}
+housing_data3 <- housing_data
+dim(housing_data3)
+```
+
+```{r}
+housing_data3 <- filter(housing_data3, !(price < lower_bound2 | price > upper_bound2))
+dim(housing_data3)
+```
+
+```{r}
+housing_data3 <- filter(housing_data3, !(area < lower_bound3 | area > upper_bound3))
+dim(housing_data3)
+```
+```{r}
+ggplot(data = housing_data3, mapping = aes(x = "", y = price))+
+  geom_boxplot(fill = "maroon")
+```
+
+```{r}
+ggplot(data = housing_data3, mapping = aes(x = price))+
+  geom_histogram(fill = "maroon", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = housing_data3, mapping = aes(x = "", y = area))+
+  geom_boxplot(fill = "maroon")
+```
+
+```{r}
+ggplot(data = housing_data3, mapping = aes(x = area))+
+  geom_histogram(fill = "maroon", color = "black", bins = 30)
+```
+
+terlihat sudah outlier sudah tidak terlihat ketika menggunakan metode `hampel filter`
+
+dataset Housing_price not outlier [here](https://github.com/muhammadrendysa/dataset_tanpa_outlier/blob/main/Housing_price_notOutlier.xlsx)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
