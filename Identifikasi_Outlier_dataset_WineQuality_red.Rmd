@@ -1,0 +1,778 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+## Identifikasi Outlier pada dataset winequality red
+
+![](al-elmes-QTgOjDCiJEo-unsplash.jpg)
+
+### Tentang Dataset
+
+Dataset "winequality-red" adalah kumpulan data yang berisi informasi tentang berbagai atribut kimia dan parameter kualitas dari sampel anggur merah. Dataset ini telah dikumpulkan dan disusun untuk mendukung analisis dan pemahaman lebih lanjut tentang kualitas anggur merah berdasarkan karakteristik kimianya. Setiap baris dalam dataset mewakili satu sampel anggur merah, sedangkan kolom-kolomnya mencakup berbagai variabel seperti tingkat keasaman tetap, tingkat keasaman yang terlarut, kadar alkohol, pH, kadar sulfur dioksida, dan lain-lain. Dataset ini berfungsi sebagai alat penting bagi para peneliti, ilmuwan data, dan ahli industri anggur untuk mengidentifikasi pola dan tren yang berkaitan dengan kualitas anggur merah. Dengan menggunakan teknik analisis data dan kecerdasan buatan, dataset "winequality-red" dapat memberikan wawasan berharga untuk mengoptimalkan proses produksi anggur, meningkatkan kualitas produk, dan memberikan pengalaman anggur yang lebih memuaskan bagi para konsumen.
+
+> Variable dalam dataset :
+>
+> - fixed acidity : tingkat keasaman tetap dari sampel anggur merah
+>
+> - volatile acidity : tingkat keasaman volatile(ukuran kandungan asam yang mudah menguap dalam anggur) dari sampel anggur merah
+>
+> - citric acid : tingkat asam nitrat(salah satu jenis asam organik yang terdapat secara alami dalam buah-buahan, termasuk jeruk dan lemon) dalam sampel anggur merah
+>
+> - residual sugar : jumlah gula yang tersisa dalam sampel anggur merah setelah proses fermentasi selesai
+>
+> - chlorides : tingkat klorida(bentuk garam dari unsur klorin dan hadir dalam anggur sebagai salah satu komponen kimia.) dalam sampel anggur merah
+>
+> - free sulfur dioxide : tingkat sulfur dioksida (senyawa kimia yang sering digunakan sebagai pengawet dan antioksidan dalam industri anggur untuk melindungi anggur dari oksidasi dan pertumbuhan mikroorganisme yang tidak diinginkan.) bebas dalam sampel anggur merah
+>
+> - total sulfur dioxide : jumlah total sulfur dioksoda dalam sampel anggur merah
+>
+> - density : densitas(ukuran massa per unit volume, dan dalam konteks anggur, densitas sering diukur dalam satuan g/cm³ (gram per sentimeter kubik) atau kg/L (kilogram per liter).) dalam sampel anggur merah
+>
+> - pH : tingkat keasaman hidrogen(pH) dari sampel anggur merah. pH adalah ukuran yang digunakan untuk mengukur tingkat keasaman atau kebasaan suatu larutan
+>
+> - sulphates : tingkat sulfat(senyawa kimia yang mengandung atom sulfur dan oksigen, dan dalam anggur, sulfat sering digunakan sebagai bahan tambahan untuk berbagai tujuan.) dalam sampel anggur
+>
+> - alcohol : tingkat kandungan alkohol (alcohol by volume atau ABV) dalam sampel anggur merah. Kandungan alkohol dalam anggur merah adalah hasil dari proses fermentasi, di mana gula dalam anggur diubah menjadi alkohol dan karbon dioksida oleh ragi yang terlibat dalam fermentasi.
+
+
+#### Import Data
+
+```{r}
+library(tidyverse)
+wine_data <- read.csv("C:/Users/Repets/Downloads/winequality-red.csv")
+dim(wine_data)
+```
+
+```{r}
+str(wine_data)
+```
+
+#### Identifikasi Outlier dengan Histogram dan Boxplot
+
+```{r}
+wine_data_copy <- wine_data
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = "", y = fixed.acidity))+
+  geom_boxplot(fill = "navajowhite")
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = fixed.acidity))+
+  geom_histogram(fill = "navajowhite", color = "black", bins = 30)
+```
+
+terlihat beberapa outlier pada variable fixed acidity
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = "", y = volatile.acidity))+
+  geom_boxplot(fill = "mistyrose")
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = volatile.acidity))+
+  geom_histogram(fill = "mistyrose", color = "black", bins = 30)
+```
+
+terdapat beberapa outlier dalam variable volatile.acidity
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = "", y = citric.acid))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = citric.acid))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+terlihat satu pencilan dengan nilai tinggi dalam variable citric.acid
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = "", y = residual.sugar))+
+  geom_boxplot(fill = "navajowhite")
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = residual.sugar))+
+  geom_histogram(fill = "navajowhite", color = "black", bins =  30)
+```
+
+terlihat banyaknya pencilan dalam variabel residual.sugar dan kecilnya nilai Interkuartil menandakan kecilnya variabilitas
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = "", y = chlorides))+
+  geom_boxplot(fill = "mistyrose")
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = chlorides))+
+  geom_histogram(fill = "mistyrose", color = "black", bins = 30)
+```
+terlihat banyaknya outlier dengan nilai yang extrem pada variable chlorides 
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = "", y = free.sulfur.dioxide))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = free.sulfur.dioxide))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+terlihat banyaknya outlier extrem pada variable free sulfur dioxide
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = "", y = total.sulfur.dioxide))+
+  geom_boxplot(fill = "navajowhite")
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = total.sulfur.dioxide))+
+  geom_histogram(fill = "navajowhite", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = "", y = density))+
+  geom_boxplot(fill = "mistyrose")
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = density))+
+  geom_histogram(fill = "mistyrose", color =  "black", bins = 30)
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = "", y = pH))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = pH))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = "", y = sulphates))+
+  geom_boxplot(fill = "navajowhite")
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = sulphates))+
+  geom_histogram(fill = "navajowhite", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = "", y = alcohol))+
+  geom_boxplot(fill = "mistyrose")
+```
+
+```{r}
+ggplot(data = wine_data_copy, mapping = aes(x = alcohol))+
+  geom_histogram(fill = "mistyrose", color = "black", bins = 30)
+```
+
+semua variable kecuali quality dalam dataset cenderung memiliki outlier
+
+```{r}
+out0 <- boxplot.stats(wine_data_copy$fixed.acidity)$out
+
+outlier_ind0 <- filter(wine_data_copy, fixed.acidity %in% c(out0))
+outlier_ind0 %>% head()
+```
+terdapat `49` observasi outlier dalam variabel fixed acidity
+
+```{r}
+out1 <- boxplot.stats(wine_data_copy$volatile.acidity)$out
+
+outlier_ind1 <- filter(wine_data_copy, volatile.acidity %in% c(out1))
+outlier_ind1 %>% head()
+```
+
+terdapat `19` baris outlier pada variabel volatile acidity
+
+```{r}
+out2 <- boxplot.stats(wine_data_copy$citric.acid)$out
+
+outlier_ind2 <- filter(wine_data_copy, citric.acid %in% c(out2))
+outlier_ind2
+```
+hanya terdapat `1` outlier dalam variabel citric acid
+
+```{r}
+out3 <- boxplot.stats(wine_data_copy$residual.sugar)$out
+
+outlier_ind3 <- filter(wine_data_copy, residual.sugar %in% c(out3))
+outlier_ind3 %>% head()
+```
+terdapat `155` observasi outlier dalam variabel residual sugar sesuai dengan grafik sebelumnya
+
+```{r}
+out4 <- boxplot.stats(wine_data_copy$chlorides)$out
+
+outlier_ind4 <- filter(wine_data_copy, chlorides %in% c(out4))
+outlier_ind4 %>% head()
+```
+terdapat `112` outlier dalam variabel chlorides
+
+```{r}
+out5 <- boxplot.stats(wine_data_copy$free.sulfur.dioxide)$out
+
+outlier_ind5 <- filter(wine_data_copy, free.sulfur.dioxide %in% c(out5))
+outlier_ind5 %>% head()
+```
+terdapat `30` observasi outlier dalam variabel free sulfur dioxide
+
+```{r}
+out6 <- boxplot.stats(wine_data_copy$total.sulfur.dioxide)$out
+
+outlier_ind6 <- filter(wine_data_copy, total.sulfur.dioxide %in% c(out6))
+outlier_ind6 %>% head()
+```
+terdapat `55` observasi quartile dalam variabel total sulfur dioxide
+
+```{r}
+out7 <- boxplot.stats(wine_data_copy$density)$out
+
+outlier_ind7 <- filter(wine_data_copy, density %in% c(out7))
+outlier_ind7 %>% head()
+```
+terdapat `45` baris outlier pada variabel density
+
+```{r}
+out8 <- boxplot.stats(wine_data_copy$pH)$out
+
+outlier_ind8 <- filter(wine_data_copy, pH %in% c(out8))
+outlier_ind8 %>% head()
+```
+terdapat `35` baris outlier dalam variabel pH
+
+```{r}
+out9 <- boxplot.stats(wine_data_copy$sulphates)$out
+
+outlier_ind9 <- filter(wine_data_copy, sulphates %in% c(out9))
+outlier_ind9 %>% head()
+```
+terdapat `59` outlier dalam variabel sulphates
+
+```{r}
+out10 <- boxplot.stats(wine_data_copy$alcohol)$out
+
+outlier_ind10 <- filter(wine_data_copy, alcohol %in% c(out10))
+outlier_ind10 %>% head
+```
+terdapat `13` baris outlier pada variabel alcohol, selanjutnya saya akan medeteksi keberadaan outlier dengan persentil
+
+#### Identifikasi Outlier dengan Persentil
+
+```{r}
+lower_bound0 <- quantile(wine_data_copy$fixed.acidity, 0.01)
+upper_bound0 <- quantile(wine_data_copy$fixed.acidity, 0.99)
+
+print(paste("lower : ", lower_bound0))
+print(paste("upper : ", upper_bound0))
+```
+
+```{r}
+outlier_pst0 <- filter(wine_data_copy, fixed.acidity < lower_bound0 | fixed.acidity > upper_bound0)
+outlier_pst0 %>% head()
+```
+terdapat `27` outlier pada variabel ficed acidity jika menggunakan metode persentil
+
+```{r}
+lower_bound1 <- quantile(wine_data_copy$volatile.acidity, 0.01)
+upper_bound1 <- quantile(wine_data_copy$volatile.acidity, 0.99)
+
+print(paste("lower : ", lower_bound1))
+print(paste("upper : ", upper_bound1))
+```
+
+```{r}
+outlier_pst1 <- filter(wine_data_copy, volatile.acidity < lower_bound1 | volatile.acidity > upper_bound1)
+outlier_pst1 %>% head()
+```
+terdapat `30` baris outlier pada variabel volatile acidity berdasarkan dengan metode persentil
+
+```{r}
+lower_bound2 <- quantile(wine_data_copy$citric.acid, 0.01)
+upper_bound2 <- quantile(wine_data_copy$citric.acid, 0.99)
+
+print(paste("lower : ", lower_bound2))
+print(paste("upper : ", upper_bound2))
+```
+
+```{r}
+outlier_pst2 <- filter(wine_data_copy, citric.acid < lower_bound2 | citric.acid > upper_bound2)
+outlier_pst2 %>% head()
+```
+terdapat `16` baris observasi pada citric acid
+
+```{r}
+lower_bound3 <- quantile(wine_data_copy$residual.sugar, 0.01)
+upper_bound3 <- quantile(wine_data_copy$residual.sugar, 0.99)
+
+print(paste("lower : ", lower_bound3))
+print(paste("upper : ", upper_bound3))
+```
+```{r}
+outlier_pst3 <- filter(wine_data_copy, residual.sugar < lower_bound3 | residual.sugar > upper_bound3)
+outlier_pst3 %>% head()
+```
+terdapat `31` observasi outlier dalam variabel residual sugar
+
+```{r}
+lower_bound4 <- quantile(wine_data_copy$chlorides, 0.01)
+upper_bound4 <- quantile(wine_data_copy$chlorides, 0.99)
+
+print(paste("lower : ", lower_bound4))
+print(paste("upper : ", upper_bound4))
+```
+
+```{r}
+outlier_pst4 <- filter(wine_data_copy, chlorides < lower_bound4 | chlorides > upper_bound4)
+outlier_pst4 %>% head()
+```
+terdapat `32` observasi dengan menggunakan persentil pada variabel chlorides
+
+```{r}
+lower_bound5 <- quantile(wine_data_copy$free.sulfur.dioxide, 0.01)
+upper_bound5 <- quantile(wine_data_copy$free.sulfur.dioxide, 0.99)
+
+print(paste("lower : ", lower_bound5))
+print(paste("upper : ", upper_bound5))
+```
+
+```{r}
+outlier_pst5 <- filter(wine_data_copy, free.sulfur.dioxide < lower_bound5 | free.sulfur.dioxide > upper_bound5)
+outlier_pst5 %>% head()
+```
+terdapat `20` baris outlier pada dataset free sulfur dioxide
+
+```{r}
+lower_bound6 <- quantile(wine_data_copy$total.sulfur.dioxide, 0.01)
+upper_bound6 <- quantile(wine_data_copy$total.sulfur.dioxide, 0.99)
+
+print(paste("lower : ", lower_bound6))
+print(paste("upper : ", upper_bound6))
+```
+
+```{r}
+outlier_pst6 <- filter(wine_data_copy, total.sulfur.dioxide < lower_bound6 | total.sulfur.dioxide > upper_bound6)
+outlier_pst6 %>% head()
+```
+tedapat `22` baris outlier dalam variabel total sulfur dioxide lebih sedikit jika dibandingkan dengan menggunakan metode boxplot dalam mengidentifikasi
+
+```{r}
+lower_bound7 <- quantile(wine_data_copy$density, 0.01)
+upper_bound7 <- quantile(wine_data_copy$density, 0.99)
+
+print(paste("lower : ", lower_bound7))
+print(paste("upper : ", upper_bound7))
+```
+
+```{r}
+outlier_pst7 <- filter(wine_data_copy, density < lower_bound7 | density > upper_bound7)
+outlier_pst7 %>% head()
+```
+terdapat `31` baris outlier pada variabel density
+
+```{r}
+lower_bound8 <- quantile(wine_data_copy$pH, 0.01)
+upper_bound8 <- quantile(wine_data_copy$pH, 0.99)
+
+print(paste("lower : ", lower_bound8))
+print(paste("upper : ", upper_bound8))
+```
+
+```{r}
+outlier_pst8 <- filter(wine_data_copy, pH < lower_bound8 | pH > upper_bound8)
+outlier_pst8 %>% head()
+```
+terdapat `30` baris outlier pada variabel pH
+
+```{r}
+lower_bound9 <- quantile(wine_data_copy$sulphates, 0.01)
+upper_bound9 <- quantile(wine_data_copy$sulphates, 0.99)
+
+print(paste("lower : ", lower_bound9))
+print(paste("upper : ", upper_bound9))
+```
+
+```{r}
+outlier_pst9 <- filter(wine_data_copy, sulphates < lower_bound9 | sulphates > upper_bound9)
+outlier_pst9 %>% head()
+```
+terdapat `29` baris outlier pada variabel sulphates 
+
+```{r}
+lower_bound10 <- quantile(wine_data_copy$alcohol, 0.01)
+upper_bound10 <- quantile(wine_data_copy$alcohol, 0.99)
+
+print(paste("lower : ", lower_bound10))
+print(paste("upper : ", upper_bound10))
+```
+
+```{r}
+outlier_pst10 <- filter(wine_data_copy, alcohol < lower_bound10 | alcohol > upper_bound10)
+outlier_pst10 %>% head()
+```
+terdapat `21` baris outlier pada variabel alcohol
+
+#### Identifikasi Outlier menggunakan hampel filter
+
+```{r}
+lower0 <- median(wine_data_copy$fixed.acidity) - 3 * mad(wine_data_copy$fixed.acidity, constant = 1)
+upper0 <- median(wine_data_copy$fixed.acidity) + 3 * mad(wine_data_copy$fixed.acidity, constant = 1)
+
+print(paste("lower : ", lower0))
+print(paste("upper : ", upper0))
+```
+
+```{r}
+outlier_hf0 <- filter(wine_data_copy, fixed.acidity < lower0 | fixed.acidity > upper0)
+outlier_hf0 %>% head()
+```
+terdapat `140` baris outlier dalam variabel fixed acidity lebih banyak jika dibandingkan dengan metode lainnya
+
+```{r}
+lower1 <- median(wine_data_copy$volatile.acidity) - 3 * mad(wine_data_copy$volatile.acidity, constant = 1)
+upper1 <- median(wine_data_copy$volatile.acidity) + 3 * mad(wine_data_copy$volatile.acidity, constant = 1)
+
+print(paste("lower : ", lower1))
+print(paste("upper : ", upper1))
+```
+
+```{r}
+outlier_hf1 <- filter(wine_data_copy, volatile.acidity < lower1 | volatile.acidity > upper1)
+outlier_hf1 %>% head()
+```
+terdapat `61` baris outlier pada variabel volatile acidity
+
+```{r}
+lower2 <- median(wine_data_copy$citric.acid) - 3 * mad(wine_data_copy$citric.acid, constant = 1)
+upper2 <- median(wine_data_copy$citric.acid) + 3 * mad(wine_data_copy$citric.acid, constant = 1)
+
+print(paste("lower : ", lower2))
+print(paste("upper : ", upper2))
+```
+
+```{r}
+outlier_hf2 <- filter(wine_data_copy, citric.acid < lower2 | citric.acid > upper2)
+outlier_hf2
+```
+pada variabel citric acid hanya terdapat `3` outlier
+
+```{r}
+lower3 <- median(wine_data_copy$residual.sugar) - 3 * mad(wine_data_copy$residual.sugar, constant = 1)
+upper3 <- median(wine_data_copy$residual.sugar) + 3 * mad(wine_data_copy$residual.sugar, constant = 1)
+
+print(paste("lower : ", lower3))
+print(paste("upper : ", upper3))
+```
+
+```{r}
+outlier_hf3 <- filter(wine_data_copy, residual.sugar < lower3 | residual.sugar > upper3)
+outlier_hf3 %>% head()
+```
+terdapat `218` baris dengan outlier pada variabel residual sugar saat identification menggunakan hampel filter
+
+```{r}
+lower4 <- median(wine_data_copy$chlorides) - 3 * mad(wine_data_copy$chlorides, constant = 1)
+upper4 <- median(wine_data_copy$chlorides) + 3 * mad(wine_data_copy$chlorides, constant = 1)
+
+print(paste("lower : ", lower4))
+print(paste("upper : ", upper4))
+```
+
+```{r}
+outlier_hf4 <- filter(wine_data_copy, chlorides < lower4 | chlorides > upper4)
+outlier_hf4 %>% head()
+```
+terdapat `211` baris outlier pada variabel chlorides
+
+```{r}
+lower5 <- median(wine_data_copy$free.sulfur.dioxide) - 3 * mad(wine_data_copy$free.sulfur.dioxide, constant = 1)
+upper5 <- median(wine_data_copy$free.sulfur.dioxide) + 3 * mad(wine_data_copy$free.sulfur.dioxide, constant = 1)
+
+print(paste("lower : ", lower5))
+print(paste("upper : ", upper5))
+```
+
+```{r}
+outlier_hf5 <- filter(wine_data_copy, free.sulfur.dioxide < lower5 | free.sulfur.dioxide > upper5)
+outlier_hf5 %>% head()
+```
+terdapat `77` baris outlier dalam variabe free sulfur dioxide
+
+```{r}
+lower6 <- median(wine_data_copy$total.sulfur.dioxide) - 3 * mad(wine_data_copy$total.sulfur.dioxide, constant = 1)
+upper6 <- median(wine_data_copy$total.sulfur.dioxide) + 3 * mad(wine_data_copy$total.sulfur.dioxide, constant = 1)
+
+print(paste("lower : ", lower6))
+print(paste("upper : ", upper6))
+```
+
+```{r}
+outlier_hf6 <- filter(wine_data_copy, total.sulfur.dioxide < lower6 | total.sulfur.dioxide > upper6)
+outlier_hf6 %>% head()
+```
+terdapat `162` baris outlier dalam variable total sulfur dioxide
+
+```{r}
+lower7 <- median(wine_data_copy$density) - 3 * mad(wine_data_copy$density, constant = 1)
+upper7 <- median(wine_data_copy$density) + 3 * mad(wine_data_copy$density, constant = 1)
+
+print(paste("lower : ", lower7))
+print(paste("upper : ", upper7))
+```
+
+```{r}
+outlier_hf7 <- filter(wine_data_copy, density < lower7 | density > upper7)
+outlier_hf7 %>% head()
+```
+terdapat `121` baris outlier pada variable density 
+
+```{r}
+lower8 <- median(wine_data_copy$pH) - 3 * mad(wine_data_copy$pH, constant = 1)
+upper8 <- median(wine_data_copy$pH) + 3 * mad(wine_data_copy$pH, constant = 1)
+
+print(paste("lower : ", lower8))
+print(paste("upper : ", upper8))
+```
+
+```{r}
+outlier_hf8 <- filter(wine_data_copy, pH < lower8 | pH > upper8)
+outlier_hf8 %>% head()
+```
+terdapat `75` baris data yang bisa dipastikan outlier dalam variable pH
+
+```{r}
+lower9 <- median(wine_data_copy$sulphates) - 3 * mad(wine_data_copy$sulphates, constant = 1)
+upper9 <- median(wine_data_copy$sulphates) + 3 * mad(wine_data_copy$sulphates, constant = 1)
+
+print(paste("lower : ", lower9))
+print(paste("upper : ", upper9))
+```
+
+```{r}
+outlier_hf9 <- filter(wine_data_copy, sulphates < lower9 | sulphates > upper9)
+outlier_hf9 %>% head()
+```
+
+terdapat `153` baris data yang dapat diperkirakan adalah outlier dalam variable sulphates
+
+```{r}
+lower10 <- median(wine_data_copy$alcohol) - 3 * mad(wine_data_copy$alcohol, constant = 1)
+upper10 <- median(wine_data_copy$alcohol) + 3 * mad(wine_data_copy$alcohol, constant = 1)
+
+print(paste("lower : ", lower10))
+print(paste("upper : ", upper10))
+```
+
+```{r}
+outlier_hf10 <- filter(wine_data_copy, alcohol < lower10 | alcohol > upper10)
+outlier_hf10 %>% head()
+```
+terdapat `104` baris outlier yang dapat di identifikasi dalam variabel alcohol
+
+#### Remove Outlier
+
+```{r}
+wine_data1 <- wine_data
+dim(wine_data1)
+```
+
+```{r}
+wine_data1 <- filter(wine_data1, !(fixed.acidity < lower0 | fixed.acidity > upper0))
+dim(wine_data1)
+```
+
+```{r}
+wine_data1 <- filter(wine_data1, !(volatile.acidity < lower1 | volatile.acidity > upper1))
+dim(wine_data1)
+```
+
+```{r}
+wine_data1 <- filter(wine_data1, !(citric.acid < lower2 | citric.acid > upper2))
+dim(wine_data1)
+```
+
+```{r}
+wine_data1 <- filter(wine_data1, !(residual.sugar < lower3 | residual.sugar > upper3))
+dim(wine_data1)
+```
+
+```{r}
+wine_data1 <- filter(wine_data1, !(chlorides < lower4 | chlorides > upper4))
+dim(wine_data1)
+```
+
+```{r}
+wine_data1 <- filter(wine_data1, !(free.sulfur.dioxide < lower5 | free.sulfur.dioxide > upper5))
+dim(wine_data1)
+```
+
+```{r}
+wine_data1 <- filter(wine_data1, !(total.sulfur.dioxide < lower6 | total.sulfur.dioxide > upper6))
+dim(wine_data1)
+```
+
+```{r}
+wine_data1 <- filter(wine_data1, !(density < lower7 | density > upper7))
+dim(wine_data1)
+```
+
+```{r}
+wine_data1 <- filter(wine_data1, !(pH < lower8 | pH > upper8))
+dim(wine_data1)
+```
+
+```{r}
+wine_data1 <- filter(wine_data1, !(sulphates < lower9 | sulphates > upper9))
+dim(wine_data1)
+```
+
+```{r}
+wine_data1 <- filter(wine_data1, !(alcohol < lower10 | alcohol > upper10))
+dim(wine_data1)
+```
+
+#### Test Data tanpa Outlier
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = fixed.acidity))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = fixed.acidity))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = volatile.acidity))+
+  geom_boxplot(fill = "navajowhite")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = volatile.acidity))+
+  geom_histogram(fill = "navajowhite", color = "black", bins = 30)
+```
+
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = citric.acid))+
+  geom_boxplot(fill = "mistyrose")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = citric.acid))+
+  geom_histogram(fill = "mistyrose", color = "black", bins = 30)
+```
+
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = residual.sugar))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = residual.sugar))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = chlorides))+
+  geom_boxplot(fill = "navajowhite")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = chlorides))+
+  geom_histogram(fill = "navajowhite", color = "black", bins = 30)
+```
+
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = free.sulfur.dioxide))+
+  geom_boxplot(fill = "mistyrose")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = free.sulfur.dioxide))+
+  geom_histogram(fill = "mistyrose", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = total.sulfur.dioxide))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = total.sulfur.dioxide))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = density))+
+  geom_boxplot(fill = "navajowhite")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = density))+
+  geom_histogram(fill = "navajowhite", color = "black", bins = 30)
+```
+terlihat masih terdapat pencilan dalam variabel density
+
+```{r}
+outlier <- boxplot.stats(wine_data1$density)$out
+
+outlier_density <- filter(wine_data1, density %in% c(outlier))
+outlier_density
+```
+```{r}
+wine_data1 <- filter(wine_data1, !(density %in% c(outlier)))
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = density))+
+  geom_boxplot(fill = "navajowhite")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = pH))+
+  geom_boxplot(fill = "mistyrose")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = pH))+
+  geom_histogram(fill = "mistyrose", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = sulphates))+
+  geom_boxplot(fill = "aquamarine")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = sulphates))+
+  geom_histogram(fill = "aquamarine", color = "black", bins = 30)
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = "", y = alcohol))+
+  geom_boxplot(fill = "navajowhite")
+```
+
+```{r}
+ggplot(data = wine_data1, mapping = aes(x = alcohol))+
+  geom_histogram(fill = "navajowhite", color = "black", bins = 30)
+```
+
+berikut [dataset](https://github.com/muhammadrendysa/dataset_tanpa_outlier/blob/main/winequality-red_noOutlier.xlsx) wine tanpa outlier
+
+
+
+
